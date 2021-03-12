@@ -1,0 +1,36 @@
+---
+- hosts: all
+
+  tasks:
+  - name: Modify /etc/resolv.conf
+    template:
+      src: /root/Monitoramento/resolv.conf
+      dest: /etc/resolv.conf
+      backup: yes
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: lock down /etc/resolv.conf
+    command: /usr/bin/chattr +i /etc/resolv.conf
+
+  - name: Install ntp
+    yum:
+      name:
+        - ntp
+      state: present
+
+  - name: Modify /etc/ntp.conf
+    template:
+      src: /root/Monitoramento/ntp.conf
+      dest: /etc/ntp.conf
+      backup: yes
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Reload and enabled service ntp
+    systemd:
+       name: ntpd
+       state: restarted
+       enabled: true

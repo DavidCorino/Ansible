@@ -1,0 +1,44 @@
+---
+- hosts: qradar-audit 
+  become: true
+  become_user: root
+  gather_facts: 0
+
+  tasks:
+    - name: Rsyslog configuration file name-audit 
+      blockinfile:
+        path: /etc/rsyslog.d/name-audit.conf
+        block: |
+            #<!-- BEGIN Infraestrutura - Auditoria -->
+            $template NameTemplateCommands,"%$DAY%-%$MONTH%-%$YEAR% %$HOUR%:%$MINUTE%:%timestamp:::date-second% %HOSTNAME% %syslogtag% %msg%\n"
+            local6.debug    /var/log/name-audit.log;NameTemplateCommands
+            #<!-- END Infraestrutura - Auditoria -->
+        create: 1
+        backup: yes
+                
+    - name: Ensure we have our own comment added to /etc/rsyslog.conf
+      lineinfile:
+        path: /etc/bashrc
+        regexp: '^.*PROMPT\_COMMAND\=.*007.*$'
+        line: '          PROMPT_COMMAND=$(echo "UkVUUk5fVkFMPSQ/O2lwaW5mbz0oJFNTSF9DT05ORUNUSU9OKTtsb2dnZXIgLXAgbG9jYWw2LmRlYnVnICJhdWRpdGNtZCBwaWQ9JCQgc3JjaXA9JHtpcGluZm9bMF19IHNyY3BvcnQ9JHtpcGluZm9bMV19IGRzdGlwPSR7aXBpbmZvWzJdfSBkc3Rwb3J0PSR7aXBpbmZvWzNdfSB1c2VyPSQod2hvYW1pKSBjbWQ9JChoaXN0b3J5IDEgfCBzZWQgInMvXlsgXSpbMC05XVwrWyBdKi8vIiApIFskUkVUUk5fVkFMXSIK" | base64 -d)'
+        backup: yes
+
+    - name: Bash configuration file update
+      template:
+        src: /root/Monitoramento/bash.bashrc
+        dest: /etc/bash.bashrc
+        backup: yes
+        
+    - name: Ensure we have our own comment added to /etc/rsyslog.conf
+      lineinfile:
+        path: /etc/rsyslog.conf
+        line: '*.* @IP'
+        backup: yes
+       
+    - name : Restart RSYSLOG
+      systemd:
+        name: rsyslog
+        state: restarted
+        
+    - name : Generating Log Sources
+      shell: echo Gerando LoG Sources; dir; ls -la; date; cat /var/log/name-audit; echo $PROMPT_COMMAND; echo Finalizando

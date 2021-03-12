@@ -1,0 +1,43 @@
+---
+- hosts: intranet
+
+  tasks:
+  - name: install zabbix-agent
+    yum:
+      name: zabbix-agent
+      disable_gpg_check: yes
+      state: latest
+
+  - name: zabbix-agent configuration file update
+    template:
+      src: /root/Monitoramento/zabbix_agentd.conf
+      dest: /etc/zabbix/zabbix_agentd.conf
+      backup: yes
+      owner: root
+      group: root
+      mode: 0644
+    notify:
+      - start zabbix-agent
+
+  - name : Enable the Service 
+    service:
+      name: zabbix-agent 
+      enabled: yes
+      use: service
+    become: yes
+    tags:
+      - zabbix-agent
+      - init
+      - service 
+
+  - name : Restart Zabbix-Agent
+    systemd:
+      name: zabbix-agent
+      state: restarted
+
+  handlers:
+    - name: start zabbix-agent
+      service:
+        name: zabbix-agent
+        enabled: yes
+        state: started

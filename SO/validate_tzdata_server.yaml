@@ -1,0 +1,6 @@
+---
+- hosts: all
+  
+  tasks:
+  - name: Update TZADATA.
+    shell: zdump -v /usr/share/zoneinfo/America/Sao_Paulo | grep 2019
