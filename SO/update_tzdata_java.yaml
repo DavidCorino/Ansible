@@ -1,0 +1,18 @@
+---
+- hosts: all
+  
+  tasks:
+  - name: Update TZADATA.
+    shell: yum update -y tzdata tzdata-java
+
+  - name: Download the tool and package
+    shell: cd /tmp; wget http://my-ip/pub/tzupdater.jar; chmod 775 tzupdater.jar; wget http://my-ip/pub/tzdata-latest.tar.gz 
+ 
+  - name: Update TZDATA JAVA 6
+    shell: /app/java/jdk6/bin/java -jar /tmp/tzupdater.jar -f -v -l file:///tmp/tzdata-latest.tar.gz
+
+  - name: Update TZDATA JAVA 7
+    shell: /app/java/jdk7/bin/java -jar /tmp/tzupdater.jar -f -v -l file:///tmp/tzdata-latest.tar.gz
+
+  - name: Update TZDATA JAVA 8
+    shell: /app/java/jdk8/bin/java -jar /tmp/tzupdater.jar -f -v -l file:///tmp/tzdata-latest.tar.gz

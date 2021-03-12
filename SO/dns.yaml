@@ -1,0 +1,12 @@
+---
+- hosts: new
+
+  tasks:
+  - name: Modify /etc/resolv.conf
+    template:
+      src: /root/Monitoramento/resolv.conf
+      dest: /etc/resolv.conf
+      backup: yes
+      owner: root
+      group: root
+      mode: 0644

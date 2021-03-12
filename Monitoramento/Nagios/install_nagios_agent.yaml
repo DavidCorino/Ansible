@@ -1,0 +1,62 @@
+---
+- hosts: intranet
+
+  tasks:
+  - name: Install Nagios Tools
+    yum:
+      name:
+         - nrpe
+         - nagios-plugins-users
+         - nagios-plugins-load
+         - nagios-plugins-swap
+         - nagios-plugins-disk
+         - nagios-plugins-procs
+         - bc
+      state: latest
+
+  - name: Nagios-agent configuration file update
+    template:
+      src: /root/Monitoramento/nrpe.cfg
+      dest: /etc/nagios/nrpe.cfg
+      backup: yes
+      owner: root
+      group: root
+      mode: 0644
+    notify:
+      - start nrpe
+
+  - name: Enable the Service Nrpe
+    service:
+      name: nrpe
+      enabled: yes
+      use: service
+    become: yes
+    tags:
+      - nrpe
+      - init
+      - service 
+
+  - name: Plugins
+    copy:
+      src: /root/Monitoramento/scripts_mon/nagios_scripts/
+      dest: /usr/local/bin/
+      backup: yes
+      owner: root
+      group: root
+      mode: 0755
+
+  - name: Restart Nagios-Agent
+    systemd:
+      name: nrpe
+      state: restarted
+
+  handlers:
+    - name : Restart Nagios-Agent
+      systemd: 
+        name: nrpe
+        state: restarted
+    - name: start nrpe
+      service:
+        name: nrpe
+        enabled: yes
+        state: started

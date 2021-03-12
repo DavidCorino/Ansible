@@ -1,0 +1,50 @@
+---
+- hosts: mig 
+
+  tasks:
+  - name: Install SNMP Tools
+    yum:
+      name:
+         - net-snmp
+         - net-snmp-utils
+      state: latest
+
+  - name: Nagios-agent configuration file update
+    template:
+      src: /root/Monitoramento/snmpd.conf
+      dest: /etc/snmp/snmpd.conf
+      backup: yes
+      owner: root
+      group: root
+      mode: 0600
+
+  - firewalld:
+      service: snmp
+      permanent: true
+      state: enabled
+
+  - name : Enable the Service SNMPD
+    service:
+      name: snmpd
+      enabled: yes
+      use: service
+    become: yes
+    tags:
+      - snmpd
+      - init
+      - service 
+
+#  - name : Reload firewalld
+#    command: firewall-cmd --reload
+    
+  - name : Restart SNMPD
+    systemd:
+      name: snmpd
+      state: restarted
+      
+  handlers:
+    - name: start snmpd
+      service:
+        name: snmpd
+        enabled: yes
+        state: started
